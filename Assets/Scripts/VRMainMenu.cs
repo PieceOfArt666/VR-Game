@@ -37,6 +37,15 @@ public class VRMainMenu : MonoBehaviour
     [Header("Controls Guide Buttons")]
     public Button backFromControlsButton;
 
+    [Header("UI Art Assets & Icons")]
+    public Sprite headerBannerSprite;
+    public Sprite panelFrameSprite;
+    public Sprite iconTutorialSprite;
+    public Sprite iconFreePlaySprite;
+    public Sprite iconResetSprite;
+    public Sprite iconControlsSprite;
+    public Sprite iconQuitSprite;
+
     private Canvas canvas;
     private AudioSource audioSource;
     private bool initialized = false;
@@ -111,9 +120,37 @@ public class VRMainMenu : MonoBehaviour
         }
     }
 
+    private void LoadArtAssets()
+    {
+        if (headerBannerSprite == null) headerBannerSprite = LoadSpriteFromFile("Textures/UI/Menu_Header_Banner.jpg");
+        if (panelFrameSprite == null) panelFrameSprite = LoadSpriteFromFile("Textures/UI/Menu_Panel_Frame.jpg");
+        if (iconTutorialSprite == null) iconTutorialSprite = LoadSpriteFromFile("Textures/UI/Icon_Play_Tutorial.jpg");
+        if (iconFreePlaySprite == null) iconFreePlaySprite = LoadSpriteFromFile("Textures/UI/Icon_Free_Play.jpg");
+        if (iconResetSprite == null) iconResetSprite = LoadSpriteFromFile("Textures/UI/Icon_Reset_Cube.jpg");
+        if (iconControlsSprite == null) iconControlsSprite = LoadSpriteFromFile("Textures/UI/Icon_Controls_Help.jpg");
+        if (iconQuitSprite == null) iconQuitSprite = LoadSpriteFromFile("Textures/UI/Icon_Exit_Quit.jpg");
+    }
+
+    private Sprite LoadSpriteFromFile(string relativePath)
+    {
+        string fullPath = System.IO.Path.Combine(Application.dataPath, relativePath);
+        if (System.IO.File.Exists(fullPath))
+        {
+            byte[] data = System.IO.File.ReadAllBytes(fullPath);
+            Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            if (tex.LoadImage(data))
+            {
+                return Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+            }
+        }
+        return null;
+    }
+
     private void BuildOrSetupMenuUI()
     {
         if (initialized) return;
+
+        LoadArtAssets();
 
         // Locate existing tutorial elements if tutorialContainer not assigned
         if (tutorialContainer == null)
@@ -208,16 +245,42 @@ public class VRMainMenu : MonoBehaviour
         rt.anchorMax = new Vector2(0.5f, 0.5f);
         rt.pivot = new Vector2(0.5f, 0.5f);
         rt.anchoredPosition = new Vector2(0f, 0f);
-        rt.sizeDelta = new Vector2(620f, 440f);
+        rt.sizeDelta = new Vector2(620f, 490f);
 
         Image img = panelGo.GetComponent<Image>();
-        img.color = new Color(0.04f, 0.07f, 0.14f, 0.94f);
+        if (panelFrameSprite != null)
+        {
+            img.sprite = panelFrameSprite;
+            img.color = new Color(1f, 1f, 1f, 0.98f);
+        }
+        else
+        {
+            img.color = new Color(0.04f, 0.07f, 0.14f, 0.94f);
+        }
 
         Outline outline = panelGo.GetComponent<Outline>();
         outline.effectColor = new Color(0.22f, 0.74f, 0.97f, 0.8f);
         outline.effectDistance = new Vector2(2f, -2f);
 
         menuPanel = panelGo;
+
+        // Top Header Banner
+        if (headerBannerSprite != null)
+        {
+            GameObject bannerGo = new GameObject("HeaderBanner", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            bannerGo.transform.SetParent(panelGo.transform, false);
+            RectTransform bannerRt = bannerGo.GetComponent<RectTransform>();
+            bannerRt.anchorMin = new Vector2(0f, 1f);
+            bannerRt.anchorMax = new Vector2(1f, 1f);
+            bannerRt.pivot = new Vector2(0.5f, 1f);
+            bannerRt.anchoredPosition = new Vector2(0f, -10f);
+            bannerRt.sizeDelta = new Vector2(-24f, 95f);
+
+            Image bannerImg = bannerGo.GetComponent<Image>();
+            bannerImg.sprite = headerBannerSprite;
+            bannerImg.preserveAspect = false;
+            bannerImg.color = new Color(1f, 1f, 1f, 0.92f);
+        }
 
         // Header Title
         GameObject titleGo = new GameObject("MenuTitle", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
@@ -226,12 +289,12 @@ public class VRMainMenu : MonoBehaviour
         titleRt.anchorMin = new Vector2(0f, 1f);
         titleRt.anchorMax = new Vector2(1f, 1f);
         titleRt.pivot = new Vector2(0.5f, 1f);
-        titleRt.anchoredPosition = new Vector2(0f, -25f);
-        titleRt.sizeDelta = new Vector2(580f, 50f);
+        titleRt.anchoredPosition = new Vector2(0f, -30f);
+        titleRt.sizeDelta = new Vector2(580f, 45f);
 
         TextMeshProUGUI titleText = titleGo.GetComponent<TextMeshProUGUI>();
         titleText.text = "<color=#38bdf8><b>VR CUBE PLACEMENT</b></color>";
-        titleText.fontSize = 32;
+        titleText.fontSize = 30;
         titleText.alignment = TextAlignmentOptions.Center;
 
         // Subtitle
@@ -242,22 +305,22 @@ public class VRMainMenu : MonoBehaviour
         subRt.anchorMax = new Vector2(1f, 1f);
         subRt.pivot = new Vector2(0.5f, 1f);
         subRt.anchoredPosition = new Vector2(0f, -75f);
-        subRt.sizeDelta = new Vector2(580f, 30f);
+        subRt.sizeDelta = new Vector2(580f, 28f);
 
         TextMeshProUGUI subText = subGo.GetComponent<TextMeshProUGUI>();
         subText.text = "<color=#94a3b8>Aim your VR Ray at an option to interact</color>";
-        subText.fontSize = 18;
+        subText.fontSize = 17;
         subText.alignment = TextAlignmentOptions.Center;
 
         // Button Container
-        float startY = -125f;
-        float spacing = 55f;
+        float startY = -128f;
+        float spacing = 58f;
 
-        startTutorialButton = CreateStyledButton(panelGo.transform, "Btn_Tutorial", "▶  START TUTORIAL", new Vector2(0f, startY), new Vector2(480f, 46f), OnStartTutorialClicked);
-        freePlayButton = CreateStyledButton(panelGo.transform, "Btn_FreePlay", "★  FREE PLAY MODE", new Vector2(0f, startY - spacing), new Vector2(480f, 46f), OnFreePlayClicked);
-        resetCubeButton = CreateStyledButton(panelGo.transform, "Btn_Reset", "↺  RESET CUBE TO CONTAINER A", new Vector2(0f, startY - spacing * 2), new Vector2(480f, 46f), OnResetCubeClicked);
-        controlsButton = CreateStyledButton(panelGo.transform, "Btn_Controls", "⌨  CONTROLS & GUIDE", new Vector2(0f, startY - spacing * 3), new Vector2(480f, 46f), OnControlsClicked);
-        quitButton = CreateStyledButton(panelGo.transform, "Btn_Quit", "✕  QUIT", new Vector2(0f, startY - spacing * 4), new Vector2(480f, 46f), OnQuitClicked);
+        startTutorialButton = CreateStyledButton(panelGo.transform, "Btn_Tutorial", "START TUTORIAL", iconTutorialSprite, new Vector2(0f, startY), new Vector2(500f, 48f), OnStartTutorialClicked);
+        freePlayButton = CreateStyledButton(panelGo.transform, "Btn_FreePlay", "FREE PLAY MODE", iconFreePlaySprite, new Vector2(0f, startY - spacing), new Vector2(500f, 48f), OnFreePlayClicked);
+        resetCubeButton = CreateStyledButton(panelGo.transform, "Btn_Reset", "RESET CUBE TO CONTAINER A", iconResetSprite, new Vector2(0f, startY - spacing * 2), new Vector2(500f, 48f), OnResetCubeClicked);
+        controlsButton = CreateStyledButton(panelGo.transform, "Btn_Controls", "CONTROLS & GUIDE", iconControlsSprite, new Vector2(0f, startY - spacing * 3), new Vector2(500f, 48f), OnControlsClicked);
+        quitButton = CreateStyledButton(panelGo.transform, "Btn_Quit", "QUIT EXPERIENCE", iconQuitSprite, new Vector2(0f, startY - spacing * 4), new Vector2(500f, 48f), OnQuitClicked);
     }
 
     private void CreateControlsPanel()
@@ -270,10 +333,18 @@ public class VRMainMenu : MonoBehaviour
         rt.anchorMax = new Vector2(0.5f, 0.5f);
         rt.pivot = new Vector2(0.5f, 0.5f);
         rt.anchoredPosition = new Vector2(0f, 0f);
-        rt.sizeDelta = new Vector2(680f, 460f);
+        rt.sizeDelta = new Vector2(680f, 470f);
 
         Image img = panelGo.GetComponent<Image>();
-        img.color = new Color(0.04f, 0.07f, 0.14f, 0.96f);
+        if (panelFrameSprite != null)
+        {
+            img.sprite = panelFrameSprite;
+            img.color = new Color(1f, 1f, 1f, 0.98f);
+        }
+        else
+        {
+            img.color = new Color(0.04f, 0.07f, 0.14f, 0.96f);
+        }
 
         Outline outline = panelGo.GetComponent<Outline>();
         outline.effectColor = new Color(0.22f, 0.74f, 0.97f, 0.8f);
@@ -331,6 +402,11 @@ public class VRMainMenu : MonoBehaviour
 
     private Button CreateStyledButton(Transform parent, string name, string label, Vector2 pos, Vector2 size, UnityEngine.Events.UnityAction onClick)
     {
+        return CreateStyledButton(parent, name, label, null, pos, size, onClick);
+    }
+
+    private Button CreateStyledButton(Transform parent, string name, string label, Sprite icon, Vector2 pos, Vector2 size, UnityEngine.Events.UnityAction onClick)
+    {
         GameObject btnGo = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button), typeof(Outline), typeof(VRButtonHover));
         btnGo.transform.SetParent(parent, false);
 
@@ -351,18 +427,39 @@ public class VRMainMenu : MonoBehaviour
         Button btn = btnGo.GetComponent<Button>();
         btn.onClick.AddListener(onClick);
 
+        // Optional Icon Image on the left
+        if (icon != null)
+        {
+            GameObject iconGo = new GameObject("Icon", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            iconGo.transform.SetParent(btnGo.transform, false);
+
+            RectTransform iconRt = iconGo.GetComponent<RectTransform>();
+            iconRt.anchorMin = new Vector2(0f, 0.5f);
+            iconRt.anchorMax = new Vector2(0f, 0.5f);
+            iconRt.pivot = new Vector2(0.5f, 0.5f);
+            iconRt.anchoredPosition = new Vector2(32f, 0f);
+            iconRt.sizeDelta = new Vector2(34f, 34f);
+
+            Image iconImg = iconGo.GetComponent<Image>();
+            iconImg.sprite = icon;
+            iconImg.preserveAspect = true;
+            iconImg.color = Color.white;
+            iconImg.raycastTarget = false;
+        }
+
         // Text
         GameObject textGo = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
         textGo.transform.SetParent(btnGo.transform, false);
         RectTransform textRt = textGo.GetComponent<RectTransform>();
         textRt.anchorMin = Vector2.zero;
         textRt.anchorMax = Vector2.one;
-        textRt.sizeDelta = Vector2.zero;
+        textRt.offsetMin = icon != null ? new Vector2(62f, 0f) : Vector2.zero;
+        textRt.offsetMax = Vector2.zero;
 
         TextMeshProUGUI tmp = textGo.GetComponent<TextMeshProUGUI>();
         tmp.text = $"<b>{label}</b>";
         tmp.fontSize = 20;
-        tmp.alignment = TextAlignmentOptions.Center;
+        tmp.alignment = icon != null ? TextAlignmentOptions.MidlineLeft : TextAlignmentOptions.Center;
         tmp.color = new Color(0.92f, 0.96f, 1f, 1f);
 
         return btn;
