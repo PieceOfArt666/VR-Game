@@ -305,15 +305,15 @@ public class CubeInteraction : MonoBehaviour
             ContainerZone targetedZone = GetContainerBIfInside();
             if (targetedZone != null && targetedZone.isCorrect)
             {
-                SetFeedback("<color=#34d399>Over Green Container (B)! Release [G] to drop & place.</color>", Color.white);
+                SetFeedback("<color=#166534>Over Green Container (B)! Release [G] to drop & place.</color>", Color.white);
             }
             else if (IsOverContainerC())
             {
-                SetFeedback("<color=#f87171>Over Container C (Incorrect)! Dropping here will reject.</color>", Color.white);
+                SetFeedback("<color=#991B1B>Over Container C (Incorrect)! Dropping here will reject.</color>", Color.white);
             }
             else
             {
-                SetFeedback($"<color=#38bdf8>Carrying Cube ({grabbedRayDistance:F1}m)! Hold [G] | [Q/E] or Thumbstick to push/pull | Release [G] to drop.</color>", Color.white);
+                SetFeedback($"<color=#0369A1>Carrying Cube ({grabbedRayDistance:F1}m)! Hold [G] | [Q/E] or Thumbstick to push/pull | Release [G] to drop.</color>", Color.white);
             }
             return;
         }
@@ -341,7 +341,7 @@ public class CubeInteraction : MonoBehaviour
             Quaternion targetRotation = startRotation * Quaternion.Euler(0f, wobble, 0f);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, dt);
 
-            SetFeedback("<color=#00a6ff><b>Ray Hovering Cube (BLUE)!</b></color> Hold [G] / Grip to grab.", Color.white);
+            SetFeedback("<color=#0369A1><b>Ray Hovering Cube (BLUE)!</b></color> Hold [G] / Grip to grab.", Color.white);
         }
         else if (!completed)
         {
@@ -1082,8 +1082,17 @@ public class CubeInteraction : MonoBehaviour
         if (feedbackText == null)
             return;
 
-        string hex = ColorUtility.ToHtmlStringRGB(color);
-        feedbackText.text = $"<size=80%><color=#94a3b8>STATUS</color></size>\n<size=105%><color=#{hex}><b>{message}</b></color></size>";
+        string hex = "1E293B"; // Rich dark charcoal on parchment
+        if (color == successColor)
+            hex = "166534"; // Deep forest green
+        else if (color == failureColor || color == Color.red)
+            hex = "991B1B"; // Deep crimson red
+        else if (color == Color.cyan || color == hoverColor)
+            hex = "0369A1"; // Deep royal blue
+        else if (color != Color.white)
+            hex = ColorUtility.ToHtmlStringRGB(color);
+
+        feedbackText.text = $"<size=80%><color=#78350F><b>STATUS</b></color></size>\n<size=105%><color=#{hex}><b>{message}</b></color></size>";
     }
 
     private void GenerateProceduralAudio()

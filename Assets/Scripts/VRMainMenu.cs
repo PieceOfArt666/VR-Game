@@ -211,11 +211,10 @@ public class VRMainMenu : MonoBehaviour
         rt.sizeDelta = new Vector2(150f, 44f);
 
         Image img = toggleGo.GetComponent<Image>();
-        img.color = new Color(0.06f, 0.10f, 0.18f, 0.90f);
+        img.color = new Color(0.18f, 0.12f, 0.08f, 0.95f);
 
         Outline outline = toggleGo.GetComponent<Outline>();
-        outline.effectColor = new Color(0.22f, 0.74f, 0.97f, 0.7f);
-        outline.effectDistance = new Vector2(1.5f, -1.5f);
+        if (outline != null) Destroy(outline);
 
         menuToggleButton = toggleGo.GetComponent<Button>();
         menuToggleButton.onClick.AddListener(ToggleMenu);
@@ -232,7 +231,7 @@ public class VRMainMenu : MonoBehaviour
         menuToggleText.text = "<b>[ ☰ MENU ]</b>";
         menuToggleText.fontSize = 20;
         menuToggleText.alignment = TextAlignmentOptions.Center;
-        menuToggleText.color = new Color(0.9f, 0.95f, 1f, 1f);
+        menuToggleText.color = new Color(1f, 0.95f, 0.85f, 1f);
     }
 
     private void CreateMenuPanel()
@@ -259,8 +258,7 @@ public class VRMainMenu : MonoBehaviour
         }
 
         Outline outline = panelGo.GetComponent<Outline>();
-        outline.effectColor = new Color(0.22f, 0.74f, 0.97f, 0.8f);
-        outline.effectDistance = new Vector2(2f, -2f);
+        if (outline != null) Destroy(outline);
 
         menuPanel = panelGo;
 
@@ -293,7 +291,7 @@ public class VRMainMenu : MonoBehaviour
         titleRt.sizeDelta = new Vector2(580f, 45f);
 
         TextMeshProUGUI titleText = titleGo.GetComponent<TextMeshProUGUI>();
-        titleText.text = "<color=#38bdf8><b>VR CUBE PLACEMENT</b></color>";
+        titleText.text = "<color=#2C1810><b>VR CUBE PLACEMENT</b></color>";
         titleText.fontSize = 30;
         titleText.alignment = TextAlignmentOptions.Center;
 
@@ -308,7 +306,7 @@ public class VRMainMenu : MonoBehaviour
         subRt.sizeDelta = new Vector2(580f, 28f);
 
         TextMeshProUGUI subText = subGo.GetComponent<TextMeshProUGUI>();
-        subText.text = "<color=#94a3b8>Aim your VR Ray at an option to interact</color>";
+        subText.text = "<color=#573926>Aim your VR Ray at an option to interact</color>";
         subText.fontSize = 17;
         subText.alignment = TextAlignmentOptions.Center;
 
@@ -347,8 +345,7 @@ public class VRMainMenu : MonoBehaviour
         }
 
         Outline outline = panelGo.GetComponent<Outline>();
-        outline.effectColor = new Color(0.22f, 0.74f, 0.97f, 0.8f);
-        outline.effectDistance = new Vector2(2f, -2f);
+        if (outline != null) Destroy(outline);
 
         controlsPanel = panelGo;
 
@@ -363,7 +360,7 @@ public class VRMainMenu : MonoBehaviour
         titleRt.sizeDelta = new Vector2(620f, 45f);
 
         TextMeshProUGUI titleText = titleGo.GetComponent<TextMeshProUGUI>();
-        titleText.text = "<color=#38bdf8><b>VR & SIMULATOR CONTROLS</b></color>";
+        titleText.text = "<color=#2C1810><b>VR & SIMULATOR CONTROLS</b></color>";
         titleText.fontSize = 28;
         titleText.alignment = TextAlignmentOptions.Center;
 
@@ -380,19 +377,20 @@ public class VRMainMenu : MonoBehaviour
         bodyText.fontSize = 17;
         bodyText.lineSpacing = 12f;
         bodyText.alignment = TextAlignmentOptions.TopLeft;
+        bodyText.color = new Color(0.16f, 0.12f, 0.09f, 1f);
         bodyText.text =
-            "<color=#fbbf24><b>VR CONTROLLER:</b></color>\n" +
+            "<color=#9A3412><b>VR CONTROLLER:</b></color>\n" +
             "  • <b>Aim Ray:</b> Point right controller beam at cube or UI buttons\n" +
             "  • <b>Grip / Grab:</b> Squeeze <b>Grip</b> (or <b>Trigger</b>) to pick up\n" +
             "  • <b>Distance Scaling:</b> Push <b>Thumbstick</b> up/down to move cube along ray\n" +
             "  • <b>Move:</b> Move your hand to carry the cube with the ray in 3D\n" +
             "  • <b>Drop:</b> Release Grip over Container B (Green) or C (Red)\n\n" +
-            "<color=#38bdf8><b>XR DEVICE SIMULATOR (Editor / Keyboard):</b></color>\n" +
-            "  • <b>Right Hand Control:</b> Hold <color=#fbbf24><b>[SPACE]</b></color> or press <color=#fbbf24><b>[T]</b></color> to toggle\n" +
+            "<color=#0369A1><b>XR DEVICE SIMULATOR (Editor / Keyboard):</b></color>\n" +
+            "  • <b>Right Hand Control:</b> Hold <color=#9A3412><b>[SPACE]</b></color> or press <color=#9A3412><b>[T]</b></color> to toggle\n" +
             "  • <b>Aim VR Ray:</b> Move mouse while holding Space / toggled\n" +
-            "  • <b>Grip / Grab:</b> Hold <color=#fbbf24><b>[G]</b></color> or Left Click to carry\n" +
-            "  • <b>Distance Scaling:</b> Press <color=#fbbf24><b>[E]</b></color> to push forward, <color=#fbbf24><b>[Q]</b></color> to pull backward\n" +
-            "  • <b>Drop Object:</b> Release <color=#fbbf24><b>[G]</b></color> or Left Click to drop";
+            "  • <b>Grip / Grab:</b> Hold <color=#9A3412><b>[G]</b></color> or Left Click to carry\n" +
+            "  • <b>Distance Scaling:</b> Press <color=#0369A1><b>[E]</b></color> to push forward, <color=#0369A1><b>[Q]</b></color> to pull backward\n" +
+            "  • <b>Drop Object:</b> Release <color=#9A3412><b>[G]</b></color> or Left Click to drop";
 
         // Back Button
         backFromControlsButton = CreateStyledButton(panelGo.transform, "Btn_Back", "←  BACK TO MENU", new Vector2(0f, -400f), new Vector2(300f, 44f), OnBackFromControlsClicked);
@@ -541,8 +539,8 @@ public class VRMainMenu : MonoBehaviour
             if (tutorialManager.feedbackText != null)
             {
                 tutorialManager.feedbackText.text =
-                    "<size=85%><color=#38bdf8>FREE PLAY MODE</color></size>\n" +
-                    "<size=105%><color=#34d399><b>Use your VR Ray to pick up and place the cube!</b></color></size>";
+                    "<size=85%><color=#78350F>FREE PLAY MODE</color></size>\n" +
+                    "<size=105%><color=#166534><b>Use your VR Ray to pick up and place the cube!</b></color></size>";
             }
         }
     }
@@ -557,8 +555,8 @@ public class VRMainMenu : MonoBehaviour
         if (tutorialManager != null && tutorialManager.feedbackText != null)
         {
             tutorialManager.feedbackText.text =
-                "<size=85%><color=#38bdf8>CUBE RESET</color></size>\n" +
-                "<size=105%><color=#34d399><b>Green Cube respawned in Container A!</b></color></size>";
+                "<size=85%><color=#78350F>CUBE RESET</color></size>\n" +
+                "<size=105%><color=#166534><b>Green Cube respawned in Container A!</b></color></size>";
         }
     }
 

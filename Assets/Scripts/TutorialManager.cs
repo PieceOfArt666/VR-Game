@@ -181,11 +181,8 @@ public class TutorialManager : MonoBehaviour
                 bgImg.color = new Color(0.04f, 0.08f, 0.16f, 0.94f);
             }
 
-            // Glowing cyan outline
             Outline outline = bg.GetComponent<Outline>();
-            if (outline == null) outline = bg.gameObject.AddComponent<Outline>();
-            outline.effectColor = new Color(0.22f, 0.74f, 0.97f, 0.85f);
-            outline.effectDistance = new Vector2(2f, -2f);
+            if (outline != null) Destroy(outline);
         }
 
         // 2. Add Top Header Banner image
@@ -287,6 +284,19 @@ public class TutorialManager : MonoBehaviour
                 }
                 boxImg.raycastTarget = false;
             }
+        }
+
+        if (instructionTitleText != null)
+        {
+            instructionTitleText.color = new Color(0.18f, 0.10f, 0.06f, 1f);
+        }
+        if (instructionBodyText != null)
+        {
+            instructionBodyText.color = new Color(0.16f, 0.12f, 0.09f, 1f);
+        }
+        if (stepBadgeText != null)
+        {
+            stepBadgeText.color = new Color(1f, 0.96f, 0.88f, 1f);
         }
     }
 
@@ -597,77 +607,68 @@ public class TutorialManager : MonoBehaviour
         string title = "";
         string body = "";
         string feedback = "";
-        Color badgeColor = new Color(0.22f, 0.74f, 0.97f);
 
         switch (currentStep)
         {
             case Step.LookAround:
                 badge = "STEP 1 / 6";
-                badgeColor = new Color(0.22f, 0.74f, 0.97f);
                 title = "Look Around (HMD)";
-                body = "• Hold <color=#facc15><b>Right Mouse Button</b></color> and move mouse to look around.\n• Observe the table, colored containers, and golden cube.";
+                body = "• Hold <color=#9A3412><b>Right Mouse Button</b></color> and move mouse to look around.\n• Observe the table, colored containers, and golden cube.";
                 feedback = "Looking around the VR space...";
                 break;
 
             case Step.MoveToTable:
                 badge = "STEP 2 / 6";
-                badgeColor = new Color(0.22f, 0.74f, 0.97f);
                 title = "Locomotion (WASD)";
-                body = "• Press <color=#facc15><b>W / A / S / D</b></color> (while holding RMB) to walk forward.\n• Step up close to the table with Containers A, B, and C.";
+                body = "• Press <color=#9A3412><b>W / A / S / D</b></color> (while holding RMB) to walk forward.\n• Step up close to the table with Containers A, B, and C.";
                 feedback = "Moving closer to the table...";
                 break;
 
             case Step.ActivateController:
                 badge = "STEP 3 / 6";
-                badgeColor = new Color(0.98f, 0.75f, 0.14f);
                 title = "Aim Controller Raycast";
-                body = "• Hold <color=#fbbf24><b>[SPACE]</b></color> (or press <color=#fbbf24><b>[T]</b></color> to toggle) to control your <b>Right Hand</b>.\n• Move mouse to aim the white <b>Controller Raycast beam</b> forward at the table.";
+                body = "• Hold <color=#9A3412><b>[SPACE]</b></color> (or press <color=#9A3412><b>[T]</b></color> to toggle) to control your <b>Right Hand</b>.\n• Move mouse to aim the <b>Controller Raycast beam</b> forward at the table.";
                 feedback = "Aim your Controller Raycast forward at the workstation.";
                 break;
 
             case Step.HoverCube:
                 badge = "STEP 4 / 6";
-                badgeColor = new Color(0.2f, 0.83f, 0.6f);
                 title = "Hover Affordance (Container A)";
-                body = "• Aim your <b>Controller Raycast</b> at the <color=#22c55e><b>Green Cube</b></color> in Container A.\n• Observe the smooth <color=#00a6ff><b>Blue highlight</b></color>, <b>1.15x breathing scale</b>, and gentle floating bob animation!";
+                body = "• Aim your <b>Controller Raycast</b> at the <color=#166534><b>Green Cube</b></color> in Container A.\n• Observe the smooth <color=#0369A1><b>Blue highlight</b></color>, <b>1.15x breathing scale</b>, and gentle floating bob animation!";
                 feedback = "Aim Controller Raycast at Green Cube to see Blue hover & bob animation.";
                 break;
 
             case Step.GrabCube:
                 badge = "STEP 5 / 6";
-                badgeColor = new Color(0.98f, 0.45f, 0.09f);
                 title = "Grip Cube & Raycast Push/Pull";
-                body = "• Aim Controller Raycast at cube and hold <color=#f97316><b>[G]</b></color> (or Left Click / VR Grip) to carry!\n• While holding, press <color=#38bdf8><b>[E]</b></color> to push forward or <color=#38bdf8><b>[Q]</b></color> to pull backward (or use Controller Thumbstick)!\n• Release [G] at any time to drop.";
+                body = "• Aim Controller Raycast at cube and hold <color=#9A3412><b>[G]</b></color> (or Left Click / VR Grip) to carry!\n• While holding, press <color=#0369A1><b>[E]</b></color> to push forward or <color=#0369A1><b>[Q]</b></color> to pull backward (or use Controller Thumbstick)!\n• Release [G] at any time to drop.";
                 feedback = "Hold [G] to carry. Press [Q]/[E] or Controller Thumbstick to push/pull along ray.";
                 break;
 
             case Step.DropInContainerC:
                 badge = "STEP 6 / 6";
-                badgeColor = new Color(0.97f, 0.44f, 0.44f);
                 title = "Move with Controller Raycast (Error Test)";
-                body = "• Carry cube with [G] and adjust distance with <color=#38bdf8><b>[Q] / [E]</b></color>.\n• Drop it outside Container B (e.g. over Container C or table).\n• <color=#f87171><b>Release [G]</b></color> to drop! Since it is not Container B, it turns RED, shakes, and returns to spawn.";
+                body = "• Carry cube with [G] and adjust distance with <color=#0369A1><b>[Q] / [E]</b></color>.\n• Drop it outside Container B (e.g. over Container C or table).\n• <color=#991B1B><b>Release [G]</b></color> to drop! Since it is not Container B, it turns RED, shakes, and returns to spawn.";
                 feedback = "Release [G] outside Container B to observe Red error return to spawn.";
                 break;
 
             case Step.DropInContainerB:
                 badge = "FINAL TASK";
-                badgeColor = new Color(0.29f, 0.87f, 0.5f);
                 title = "Place with Controller Raycast in Container B";
-                body = "• Aim Controller Raycast at the cube, hold <color=#34d399><b>[G]</b></color> to carry it.\n• Adjust distance with <color=#38bdf8><b>[Q] / [E]</b></color> or Thumbstick over <color=#4ade80><b>Green Container (B)</b></color>!\n• Release [G] inside Container B for magnetic snap & SUCCESS!";
+                body = "• Aim Controller Raycast at the cube, hold <color=#166534><b>[G]</b></color> to carry it.\n• Adjust distance with <color=#0369A1><b>[Q] / [E]</b></color> or Thumbstick over <color=#166534><b>Green Container (B)</b></color>!\n• Release [G] inside Container B for magnetic snap & SUCCESS!";
                 feedback = "Release [G] inside Container B (Green) for SUCCESS!";
                 break;
 
             case Step.Completed:
                 badge = "TUTORIAL COMPLETE";
-                badgeColor = new Color(0.18f, 0.83f, 0.75f);
                 title = "All Mechanics Verified!";
                 body = "<b>Congratulations!</b> You have verified:\n" +
-                       "<color=#34d399>[OK]</color> 6-DOF Tracking & Locomotion (WASD)\n" +
-                       "<color=#34d399>[OK]</color> Controller Raycast Object Manipulation & Movement\n" +
-                       "<color=#34d399>[OK]</color> Controller Raycast UI Interaction & Menu Navigation\n" +
-                       "<color=#34d399>[OK]</color> Hover Affordance (Blue Lerp, 1.15x Scale & Floating Bob)\n" +
-                       "<color=#34d399>[OK]</color> Container C Error Shake & Arc Return\n" +
-                       "<color=#34d399>[OK]</color> Container B Magnetic Snap & Scale Pop";
+                       "<color=#166534>[OK]</color> 6-DOF Tracking & Locomotion (WASD)\n" +
+                       "<color=#166534>[OK]</color> Controller Raycast Object Manipulation & Movement\n" +
+                       "<color=#166534>[OK]</color> Controller Raycast UI Interaction & Menu Navigation\n" +
+                       "<color=#166534>[OK]</color> Hover Affordance (Blue Lerp, 1.15x Scale & Floating Bob)\n" +
+                       "<color=#166534>[OK]</color> Container C Error Shake & Arc Return\n" +
+                       "<color=#166534>[OK]</color> Container B Magnetic Snap & Scale Pop";
                 feedback = "SUCCESS! All mechanics passed. Press R to restart, or aim ray at [MENU].";
                 break;
         }
@@ -675,23 +676,25 @@ public class TutorialManager : MonoBehaviour
         if (stepBadgeText != null)
         {
             stepBadgeText.text = badge;
-            stepBadgeText.color = badgeColor;
+            stepBadgeText.color = new Color(1f, 0.96f, 0.88f, 1f);
         }
 
         if (instructionTitleText != null)
         {
             instructionTitleText.text = title;
+            instructionTitleText.color = new Color(0.18f, 0.10f, 0.06f, 1f);
         }
 
         if (instructionBodyText != null)
         {
             instructionBodyText.text = body;
+            instructionBodyText.color = new Color(0.16f, 0.12f, 0.09f, 1f);
         }
 
         if (feedbackText != null)
         {
-            string hex = ColorUtility.ToHtmlStringRGB(badgeColor);
-            feedbackText.text = $"<size=80%><color=#94a3b8>STATUS</color></size>\n<size=105%><color=#{hex}><b>{feedback}</b></color></size>";
+            string hex = (currentStep == Step.Completed) ? "166534" : "1E293B";
+            feedbackText.text = $"<size=80%><color=#78350F><b>STATUS</b></color></size>\n<size=105%><color=#{hex}><b>{feedback}</b></color></size>";
         }
     }
 
