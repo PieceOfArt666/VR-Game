@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -55,12 +56,8 @@ public class TutorialManager : MonoBehaviour
     {
         FindPlayerCamera();
 
-        // 1. Transparent Canvas UI: hide opaque background panel
-        Transform bg = transform.Find("BackgroundPanel");
-        if (bg != null)
-        {
-            bg.gameObject.SetActive(false);
-        }
+        // 1. Setup Sci-Fi UI Art & Backgrounds
+        SetupUIArt();
 
         // 2. Proactive auto-hookup if references were not set in inspector
         if (stepBadgeText == null)
@@ -130,6 +127,166 @@ public class TutorialManager : MonoBehaviour
             cubeInteraction.OnCubeGrabbed -= HandleCubeGrabbed;
             cubeInteraction.OnCubeFailure -= HandleCubeFailure;
             cubeInteraction.OnCubeSuccess -= HandleCubeSuccess;
+        }
+    }
+
+    private Sprite LoadSpriteFromFile(string relativePath)
+    {
+        string fullPath = Path.Combine(Application.dataPath, relativePath);
+        if (File.Exists(fullPath))
+        {
+            byte[] data = File.ReadAllBytes(fullPath);
+            Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            if (tex.LoadImage(data))
+            {
+                return Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+            }
+        }
+        return null;
+    }
+
+    private void SetupUIArt()
+    {
+        // 1. Activate and style BackgroundPanel with high-tech sci-fi frame
+        Transform bg = transform.Find("BackgroundPanel");
+        if (bg == null)
+        {
+            GameObject bgGo = new GameObject("BackgroundPanel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            bgGo.transform.SetParent(transform, false);
+            bgGo.transform.SetAsFirstSibling();
+            bg = bgGo.transform;
+            RectTransform rt = bgGo.GetComponent<RectTransform>();
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.sizeDelta = Vector2.zero;
+        }
+
+        if (bg != null)
+        {
+            bg.gameObject.SetActive(true);
+            bg.SetAsFirstSibling(); // Ensure it's behind text
+
+            Image bgImg = bg.GetComponent<Image>();
+            if (bgImg == null) bgImg = bg.gameObject.AddComponent<Image>();
+
+            Sprite frameSprite = LoadSpriteFromFile("Textures/UI/Menu_Panel_Frame.jpg");
+            if (frameSprite != null)
+            {
+                bgImg.sprite = frameSprite;
+                bgImg.type = Image.Type.Simple;
+                bgImg.color = new Color(1f, 1f, 1f, 0.96f);
+            }
+            else
+            {
+                bgImg.color = new Color(0.04f, 0.08f, 0.16f, 0.94f);
+            }
+
+            // Glowing cyan outline
+            Outline outline = bg.GetComponent<Outline>();
+            if (outline == null) outline = bg.gameObject.AddComponent<Outline>();
+            outline.effectColor = new Color(0.22f, 0.74f, 0.97f, 0.85f);
+            outline.effectDistance = new Vector2(2f, -2f);
+        }
+
+        // 2. Add Top Header Banner image
+        Transform existingBanner = transform.Find("HeaderBanner");
+        if (existingBanner == null)
+        {
+            Sprite bannerSprite = LoadSpriteFromFile("Textures/UI/Menu_Header_Banner.jpg");
+            if (bannerSprite != null)
+            {
+                GameObject bannerGo = new GameObject("HeaderBanner", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                bannerGo.transform.SetParent(transform, false);
+                if (bg != null) bannerGo.transform.SetSiblingIndex(1);
+
+                RectTransform bannerRt = bannerGo.GetComponent<RectTransform>();
+                bannerRt.anchorMin = new Vector2(0f, 1f);
+                bannerRt.anchorMax = new Vector2(1f, 1f);
+                bannerRt.pivot = new Vector2(0.5f, 1f);
+                bannerRt.anchoredPosition = new Vector2(0f, -6f);
+                bannerRt.sizeDelta = new Vector2(-20f, 65f);
+
+                Image bannerImg = bannerGo.GetComponent<Image>();
+                bannerImg.sprite = bannerSprite;
+                bannerImg.preserveAspect = false;
+                bannerImg.color = new Color(1f, 1f, 1f, 0.92f);
+                bannerImg.raycastTarget = false;
+            }
+        }
+
+        // 3. Step Badge Graphic
+        Transform badgeTrans = transform.Find("StepBadge");
+        if (badgeTrans != null)
+        {
+            Image badgeImg = badgeTrans.GetComponent<Image>();
+            if (badgeImg == null) badgeImg = badgeTrans.gameObject.AddComponent<Image>();
+            Sprite badgeSprite = LoadSpriteFromFile("Textures/UI/Step_Badge.png");
+            if (badgeSprite != null)
+            {
+                badgeImg.sprite = badgeSprite;
+                badgeImg.type = Image.Type.Sliced;
+                badgeImg.color = Color.white;
+            }
+        }
+
+        // 4. Progress Track & Fill
+        Transform trackTrans = transform.Find("ProgressTrack");
+        if (trackTrans != null)
+        {
+            Image trackImg = trackTrans.GetComponent<Image>();
+            if (trackImg == null) trackImg = trackTrans.gameObject.AddComponent<Image>();
+            Sprite trackSprite = LoadSpriteFromFile("Textures/UI/ProgressBar_Track.png");
+            if (trackSprite != null)
+            {
+                trackImg.sprite = trackSprite;
+                trackImg.type = Image.Type.Sliced;
+                trackImg.color = Color.white;
+            }
+        }
+
+        if (progressBarFill != null)
+        {
+            Sprite fillSprite = LoadSpriteFromFile("Textures/UI/ProgressBar_Fill.png");
+            if (fillSprite != null)
+            {
+                progressBarFill.sprite = fillSprite;
+                progressBarFill.type = Image.Type.Filled;
+                progressBarFill.color = Color.white;
+            }
+        }
+
+        // 5. Feedback Box Graphic (Status_Box.png behind FeedbackText)
+        if (feedbackText != null)
+        {
+            Transform fbBox = transform.Find("FeedbackStatusBox");
+            if (fbBox == null)
+            {
+                GameObject boxGo = new GameObject("FeedbackStatusBox", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                boxGo.transform.SetParent(transform, false);
+                boxGo.transform.SetSiblingIndex(feedbackText.transform.GetSiblingIndex());
+
+                RectTransform boxRt = boxGo.GetComponent<RectTransform>();
+                RectTransform textRt = feedbackText.rectTransform;
+                boxRt.anchorMin = textRt.anchorMin;
+                boxRt.anchorMax = textRt.anchorMax;
+                boxRt.pivot = textRt.pivot;
+                boxRt.anchoredPosition = textRt.anchoredPosition;
+                boxRt.sizeDelta = new Vector2(textRt.sizeDelta.x + 20f, textRt.sizeDelta.y + 12f);
+
+                Image boxImg = boxGo.GetComponent<Image>();
+                Sprite boxSprite = LoadSpriteFromFile("Textures/UI/Status_Box.png");
+                if (boxSprite != null)
+                {
+                    boxImg.sprite = boxSprite;
+                    boxImg.type = Image.Type.Sliced;
+                    boxImg.color = Color.white;
+                }
+                else
+                {
+                    boxImg.color = new Color(0.05f, 0.12f, 0.22f, 0.85f);
+                }
+                boxImg.raycastTarget = false;
+            }
         }
     }
 
