@@ -293,14 +293,8 @@ public class CubeInteraction : MonoBehaviour
             float rotLerp = 1f - Mathf.Exp(-16f * Time.deltaTime);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotLerp);
 
-            // Keep Rigidbody completely kinematic and zeroed out during carry
-            if (rb != null)
-            {
-                rb.isKinematic = true;
-                rb.useGravity = false;
-                rb.linearVelocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
-            }
+            // Keep Rigidbody completely kinematic during carry
+            SetKinematic(true);
 
             // Keep BLUE while carried
             currentColor = Color.Lerp(currentColor, hoverColor, dt);
@@ -829,13 +823,7 @@ public class CubeInteraction : MonoBehaviour
             grab.trackRotation = false;
         }
 
-        if (rb != null)
-        {
-            rb.isKinematic = true;
-            rb.useGravity = false;
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-        }
+        SetKinematic(true);
 
         Ray ray = GetActiveControllerRay();
         grabbedRayDistance = Mathf.Clamp(Vector3.Distance(ray.origin, transform.position), minRayDistance, maxRayDistance);
@@ -861,13 +849,7 @@ public class CubeInteraction : MonoBehaviour
             grab.trackRotation = false;
         }
 
-        if (rb != null)
-        {
-            rb.isKinematic = true;
-            rb.useGravity = false;
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-        }
+        SetKinematic(true);
 
         // CRITICAL: Immediately lock busy state so Update() never lerps the cube away before CheckPlacement runs!
         if (!busy && !completed)
@@ -910,15 +892,31 @@ public class CubeInteraction : MonoBehaviour
         }
     }
 
-    void FreezeCube()
+    private void SetKinematic(bool kinematic)
     {
-        if (rb != null)
+        if (rb == null) return;
+        if (kinematic)
         {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-            rb.isKinematic = true;
+            if (!rb.isKinematic)
+            {
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                rb.isKinematic = true;
+            }
             rb.useGravity = false;
         }
+        else
+        {
+            rb.isKinematic = false;
+            rb.useGravity = true;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+    }
+
+    void FreezeCube()
+    {
+        SetKinematic(true);
         if (grab != null)
         {
             grab.enabled = false;
@@ -1038,13 +1036,7 @@ public class CubeInteraction : MonoBehaviour
         currentColor = defaultColor;
         cubeMaterial.SetColor(colorPropertyId, defaultColor);
 
-        if (rb != null)
-        {
-            rb.isKinematic = false;
-            rb.useGravity = true;
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-        }
+        SetKinematic(false);
         if (grab != null)
         {
             grab.enabled = true;
@@ -1073,13 +1065,7 @@ public class CubeInteraction : MonoBehaviour
         if (cubeMaterial != null)
             cubeMaterial.SetColor(colorPropertyId, defaultColor);
 
-        if (rb != null)
-        {
-            rb.isKinematic = false;
-            rb.useGravity = true;
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-        }
+        SetKinematic(false);
 
         if (grab != null)
         {
