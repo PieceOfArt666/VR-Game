@@ -560,19 +560,12 @@ public class CubeInteraction : MonoBehaviour
         {
             if (device is UnityEngine.InputSystem.XR.XRController)
             {
-                if (device.TryGetChildControl<UnityEngine.InputSystem.Controls.Vector2Control>("thumbstick", out var thumb))
+                var thumb = device.TryGetChildControl<UnityEngine.InputSystem.Controls.Vector2Control>("thumbstick")
+                         ?? device.TryGetChildControl<UnityEngine.InputSystem.Controls.Vector2Control>("primary2DAxis")
+                         ?? device.TryGetChildControl<UnityEngine.InputSystem.Controls.Vector2Control>("joystick");
+                if (thumb != null)
                 {
                     Vector2 v = thumb.ReadValue();
-                    if (v.sqrMagnitude > 0.01f) return v;
-                }
-                if (device.TryGetChildControl<UnityEngine.InputSystem.Controls.Vector2Control>("primary2DAxis", out var p2d))
-                {
-                    Vector2 v = p2d.ReadValue();
-                    if (v.sqrMagnitude > 0.01f) return v;
-                }
-                if (device.TryGetChildControl<UnityEngine.InputSystem.Controls.Vector2Control>("joystick", out var joy))
-                {
-                    Vector2 v = joy.ReadValue();
                     if (v.sqrMagnitude > 0.01f) return v;
                 }
             }

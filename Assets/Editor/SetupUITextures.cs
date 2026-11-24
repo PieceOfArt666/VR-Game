@@ -13,6 +13,8 @@ public static class SetupUITextures
     [MenuItem("VR Assignment/Configure UI Sprites and Icons")]
     public static void ConfigureTextures()
     {
+        UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation();
+
         string[] textureFiles = new string[]
         {
             "Assets/Textures/UI/Menu_Header_Banner.jpg",
