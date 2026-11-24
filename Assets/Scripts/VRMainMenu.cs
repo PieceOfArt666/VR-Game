@@ -133,6 +133,12 @@ public class VRMainMenu : MonoBehaviour
 
     private Sprite LoadSpriteFromFile(string relativePath)
     {
+        // 1. Try Resources.Load first (works in standalone builds and Editor)
+        string cleanName = System.IO.Path.GetFileNameWithoutExtension(relativePath);
+        Sprite resSprite = Resources.Load<Sprite>("UI/" + cleanName);
+        if (resSprite != null) return resSprite;
+
+        // 2. Direct file fallback for Editor
         string fullPath = System.IO.Path.Combine(Application.dataPath, relativePath);
         if (System.IO.File.Exists(fullPath))
         {
@@ -254,7 +260,7 @@ public class VRMainMenu : MonoBehaviour
         }
         else
         {
-            img.color = new Color(0.04f, 0.07f, 0.14f, 0.94f);
+            img.color = new Color(0.97f, 0.94f, 0.88f, 1f);
         }
 
         Outline outline = panelGo.GetComponent<Outline>();
@@ -341,7 +347,7 @@ public class VRMainMenu : MonoBehaviour
         }
         else
         {
-            img.color = new Color(0.04f, 0.07f, 0.14f, 0.96f);
+            img.color = new Color(0.97f, 0.94f, 0.88f, 1f);
         }
 
         Outline outline = panelGo.GetComponent<Outline>();

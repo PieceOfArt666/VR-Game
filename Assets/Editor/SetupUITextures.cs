@@ -15,7 +15,19 @@ public static class SetupUITextures
             "Assets/Textures/UI/Icon_Free_Play.jpg",
             "Assets/Textures/UI/Icon_Reset_Cube.jpg",
             "Assets/Textures/UI/Icon_Controls_Help.jpg",
-            "Assets/Textures/UI/Icon_Exit_Quit.jpg"
+            "Assets/Textures/UI/Icon_Exit_Quit.jpg",
+            "Assets/Resources/UI/Menu_Header_Banner.jpg",
+            "Assets/Resources/UI/Menu_Panel_Frame.jpg",
+            "Assets/Resources/UI/Icon_Play_Tutorial.jpg",
+            "Assets/Resources/UI/Icon_Free_Play.jpg",
+            "Assets/Resources/UI/Icon_Reset_Cube.jpg",
+            "Assets/Resources/UI/Icon_Controls_Help.jpg",
+            "Assets/Resources/UI/Icon_Exit_Quit.jpg",
+            "Assets/Resources/UI/Step_Badge.png",
+            "Assets/Resources/UI/ProgressBar_Track.png",
+            "Assets/Resources/UI/ProgressBar_Fill.png",
+            "Assets/Resources/UI/Status_Box.png",
+            "Assets/Resources/UI/Panel_Background.png"
         };
 
         bool changed = false;

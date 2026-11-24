@@ -132,6 +132,12 @@ public class TutorialManager : MonoBehaviour
 
     private Sprite LoadSpriteFromFile(string relativePath)
     {
+        // 1. Try Resources.Load first (works in standalone builds and Editor)
+        string cleanName = Path.GetFileNameWithoutExtension(relativePath);
+        Sprite resSprite = Resources.Load<Sprite>("UI/" + cleanName);
+        if (resSprite != null) return resSprite;
+
+        // 2. Direct file fallback for Editor
         string fullPath = Path.Combine(Application.dataPath, relativePath);
         if (File.Exists(fullPath))
         {
@@ -178,7 +184,7 @@ public class TutorialManager : MonoBehaviour
             }
             else
             {
-                bgImg.color = new Color(0.04f, 0.08f, 0.16f, 0.94f);
+                bgImg.color = new Color(0.97f, 0.94f, 0.88f, 1f);
             }
 
             Outline outline = bg.GetComponent<Outline>();
@@ -280,7 +286,7 @@ public class TutorialManager : MonoBehaviour
                 }
                 else
                 {
-                    boxImg.color = new Color(0.05f, 0.12f, 0.22f, 0.85f);
+                    boxImg.color = new Color(0.96f, 0.92f, 0.85f, 1f);
                 }
                 boxImg.raycastTarget = false;
             }
