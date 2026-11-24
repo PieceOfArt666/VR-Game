@@ -38,6 +38,13 @@ public class CubeInteraction : MonoBehaviour
     [Header("Raycast Interaction Reach")]
     public float interactionReachDistance = 8.0f;
 
+    [Header("Raycast Distance Manipulation (Push / Pull)")]
+    public float minRayDistance = 0.35f;
+    public float maxRayDistance = 8.0f;
+    public float keyboardDistanceSpeed = 2.0f; // meters per second with Q and E
+    public float controllerDistanceSpeed = 2.5f; // meters per second with VR Thumbstick
+    public float scrollDistanceSpeed = 0.003f; // mouse scroll wheel sensitivity
+
     // Events for Tutorial State Machine
     public event Action OnCubeGrabbed;
     public event Action OnCubeSuccess;
@@ -187,11 +194,44 @@ public class CubeInteraction : MonoBehaviour
 
         float dt = Time.deltaTime * hoverSpeed;
 
-        // 1. CARRIED BY CONTROLLER RAYCAST: 3D Movement with Zero Vibration / Wiggling
+        // 1. CARRIED BY CONTROLLER RAYCAST: 3D Movement with Distance Manipulation (Q/E & Controllers)
         if (IsGrabbed)
         {
             Ray ray = GetActiveControllerRay();
-            Vector3 targetPosition;
+
+            // Distance scaling (push forward / pull backward along ray)
+            float distDelta = 0f;
+
+            // Keyboard: E pushes forward (away), Q pulls backward (closer)
+            Keyboard kb = Keyboard.current;
+            if (kb != null)
+            {
+                if (kb.eKey.isPressed)
+                    distDelta += keyboardDistanceSpeed * Time.deltaTime;
+                if (kb.qKey.isPressed)
+                    distDelta -= keyboardDistanceSpeed * Time.deltaTime;
+            }
+
+            // Controller Thumbstick / Joystick (Primary2DAxis Y)
+            Vector2 stickInput = GetControllerThumbstick();
+            if (Mathf.Abs(stickInput.y) > 0.12f)
+            {
+                distDelta += stickInput.y * controllerDistanceSpeed * Time.deltaTime;
+            }
+
+            // Mouse Scroll Wheel (Desktop / Simulator fallback)
+            if (Mouse.current != null)
+            {
+                float scroll = Mouse.current.scroll.y.ReadValue();
+                if (Mathf.Abs(scroll) > 0.01f)
+                {
+                    distDelta += scroll * scrollDistanceSpeed;
+                }
+            }
+
+            grabbedRayDistance = Mathf.Clamp(grabbedRayDistance + distDelta, minRayDistance, maxRayDistance);
+
+            Vector3 targetPosition = ray.origin + ray.direction * grabbedRayDistance;
 
             // Upright orientation: keep cube level and face horizontally along the ray
             Vector3 flatDir = Vector3.ProjectOnPlane(ray.direction, Vector3.up);
@@ -199,38 +239,47 @@ public class CubeInteraction : MonoBehaviour
                 ? Quaternion.LookRotation(flatDir, Vector3.up)
                 : transform.rotation;
 
-            // Raycast into world to find surface (table, container floor)
-            // Filter out the cube itself so the ray never hits the carried cube
             int layerMask = ~LayerMask.GetMask("Ignore Raycast");
-            RaycastHit[] hits = Physics.RaycastAll(ray, 15f, layerMask, QueryTriggerInteraction.Ignore);
-            RaycastHit surfaceHit = default;
-            bool hitSurface = false;
-            float nearestDist = float.MaxValue;
+            float halfHeight = transform.localScale.y * 0.5f;
+
+            // Collision prevention: stop if ray hits an obstacle before reaching grabbedRayDistance
+            RaycastHit[] hits = Physics.RaycastAll(ray, grabbedRayDistance, layerMask, QueryTriggerInteraction.Ignore);
+            float nearestObstacle = grabbedRayDistance;
+            bool hitObstacle = false;
+            RaycastHit obstacleHit = default;
 
             foreach (var h in hits)
             {
                 if (h.transform == transform || h.transform.IsChildOf(transform))
                     continue;
 
-                if (h.distance < nearestDist)
+                if (h.distance < nearestObstacle)
                 {
-                    nearestDist = h.distance;
-                    surfaceHit = h;
-                    hitSurface = true;
+                    nearestObstacle = h.distance;
+                    obstacleHit = h;
+                    hitObstacle = true;
                 }
             }
 
-            float halfHeight = transform.localScale.y * 0.5f;
-
-            if (hitSurface && surfaceHit.distance <= interactionReachDistance + 1.2f)
+            if (hitObstacle)
             {
-                // Surface hover cushion (3cm above table/floor to prevent clipping)
-                targetPosition = surfaceHit.point + surfaceHit.normal * (halfHeight + 0.03f);
+                // Surface/wall cushion
+                targetPosition = obstacleHit.point + obstacleHit.normal * (halfHeight + 0.02f);
             }
             else
             {
-                // Free floating in air along ray direction
-                targetPosition = ray.origin + ray.direction * grabbedRayDistance;
+                // Downward surface check to prevent sinking below tabletop or floor
+                if (Physics.Raycast(targetPosition + Vector3.up * 0.4f, Vector3.down, out RaycastHit downHit, 0.6f, layerMask, QueryTriggerInteraction.Ignore))
+                {
+                    if (downHit.transform != transform && !downHit.transform.IsChildOf(transform))
+                    {
+                        float floorLevel = downHit.point.y + halfHeight + 0.02f;
+                        if (targetPosition.y < floorLevel)
+                        {
+                            targetPosition.y = floorLevel;
+                        }
+                    }
+                }
             }
 
             // High-precision smooth damping with deadzone to eliminate all jitter/wiggling
@@ -258,7 +307,7 @@ public class CubeInteraction : MonoBehaviour
             cubeMaterial.SetColor(colorPropertyId, currentColor);
             transform.localScale = Vector3.Lerp(transform.localScale, startScale * 1.05f, dt);
 
-            // Inform player of drop zones
+            // Inform player of drop zones and distance scaling
             ContainerZone targetedZone = GetContainerBIfInside();
             if (targetedZone != null && targetedZone.isCorrect)
             {
@@ -270,7 +319,7 @@ public class CubeInteraction : MonoBehaviour
             }
             else
             {
-                SetFeedback("<color=#38bdf8>Carrying Cube! Hold [G] to carry, release [G] to drop.</color>", Color.white);
+                SetFeedback($"<color=#38bdf8>Carrying Cube ({grabbedRayDistance:F1}m)! Hold [G] | [Q/E] or Thumbstick to push/pull | Release [G] to drop.</color>", Color.white);
             }
             return;
         }
@@ -471,6 +520,76 @@ public class CubeInteraction : MonoBehaviour
         return new Ray(transform.position + Vector3.back, Vector3.forward);
     }
 
+    public Vector2 GetControllerThumbstick()
+    {
+        // 1. Try CommonUsages on XR InputDevices
+        var devices = new List<UnityEngine.XR.InputDevice>();
+        UnityEngine.XR.InputDevices.GetDevicesWithCharacteristics(
+            UnityEngine.XR.InputDeviceCharacteristics.Right | UnityEngine.XR.InputDeviceCharacteristics.Controller, 
+            devices);
+        
+        foreach (var dev in devices)
+        {
+            if (dev.isValid && dev.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out Vector2 axis))
+            {
+                if (axis.sqrMagnitude > 0.01f)
+                    return axis;
+            }
+        }
+
+        devices.Clear();
+        UnityEngine.XR.InputDevices.GetDevicesWithCharacteristics(
+            UnityEngine.XR.InputDeviceCharacteristics.Controller, 
+            devices);
+        foreach (var dev in devices)
+        {
+            if (dev.isValid && dev.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out Vector2 axis))
+            {
+                if (axis.sqrMagnitude > 0.01f)
+                    return axis;
+            }
+            if (dev.isValid && dev.TryGetFeatureValue(UnityEngine.XR.CommonUsages.secondary2DAxis, out Vector2 secAxis))
+            {
+                if (secAxis.sqrMagnitude > 0.01f)
+                    return secAxis;
+            }
+        }
+
+        // 2. Check InputSystem devices
+        foreach (var device in UnityEngine.InputSystem.InputSystem.devices)
+        {
+            if (device is UnityEngine.InputSystem.XR.XRController)
+            {
+                if (device.TryGetChildControl<UnityEngine.InputSystem.Controls.Vector2Control>("thumbstick", out var thumb))
+                {
+                    Vector2 v = thumb.ReadValue();
+                    if (v.sqrMagnitude > 0.01f) return v;
+                }
+                if (device.TryGetChildControl<UnityEngine.InputSystem.Controls.Vector2Control>("primary2DAxis", out var p2d))
+                {
+                    Vector2 v = p2d.ReadValue();
+                    if (v.sqrMagnitude > 0.01f) return v;
+                }
+                if (device.TryGetChildControl<UnityEngine.InputSystem.Controls.Vector2Control>("joystick", out var joy))
+                {
+                    Vector2 v = joy.ReadValue();
+                    if (v.sqrMagnitude > 0.01f) return v;
+                }
+            }
+        }
+
+        // 3. Fallback: Gamepad thumbsticks
+        if (Gamepad.current != null)
+        {
+            Vector2 rightStick = Gamepad.current.rightStick.ReadValue();
+            if (rightStick.sqrMagnitude > 0.01f) return rightStick;
+            Vector2 leftStick = Gamepad.current.leftStick.ReadValue();
+            if (leftStick.sqrMagnitude > 0.01f) return leftStick;
+        }
+
+        return Vector2.zero;
+    }
+
     private void UpdateTargetingAndRayInput()
     {
         if (busy || completed)
@@ -543,9 +662,9 @@ public class CubeInteraction : MonoBehaviour
         Keyboard kb = Keyboard.current;
         Mouse mouseCurrent = Mouse.current;
 
-        bool gDown = kb != null && (kb.gKey.wasPressedThisFrame || kb.eKey.wasPressedThisFrame);
-        bool gHeld = kb != null && (kb.gKey.isPressed || kb.eKey.isPressed);
-        bool gReleased = kb != null && (kb.gKey.wasReleasedThisFrame || kb.eKey.wasReleasedThisFrame);
+        bool gDown = kb != null && kb.gKey.wasPressedThisFrame;
+        bool gHeld = kb != null && kb.gKey.isPressed;
+        bool gReleased = kb != null && kb.gKey.wasReleasedThisFrame;
 
         bool leftDown = false;
         bool leftHeld = false;
@@ -726,13 +845,13 @@ public class CubeInteraction : MonoBehaviour
         }
 
         Ray ray = GetActiveControllerRay();
-        grabbedRayDistance = Mathf.Clamp(Vector3.Distance(ray.origin, transform.position), 0.40f, interactionReachDistance);
+        grabbedRayDistance = Mathf.Clamp(Vector3.Distance(ray.origin, transform.position), minRayDistance, maxRayDistance);
 
         // Sound effect triggers once per grab, never loops
         if (audioSource != null && grabSound != null)
             audioSource.PlayOneShot(grabSound);
 
-        SetFeedback("Cube gripped! Hold [G] to carry, release [G] to drop.", Color.white);
+        SetFeedback($"Cube gripped! Hold [G] to carry | [Q/E] to push/pull ({grabbedRayDistance:F1}m) | Release [G] to drop.", Color.white);
 
         OnCubeGrabbed?.Invoke();
     }

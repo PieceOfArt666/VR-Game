@@ -66,7 +66,7 @@ public class VRMainMenu : MonoBehaviour
         Keyboard kb = Keyboard.current;
         if (kb != null)
         {
-            if (kb.mKey.wasPressedThisFrame || kb.escapeKey.wasPressedThisFrame)
+            if (kb.mKey.wasPressedThisFrame)
             {
                 ToggleMenu();
             }
@@ -313,14 +313,15 @@ public class VRMainMenu : MonoBehaviour
             "<color=#fbbf24><b>VR CONTROLLER:</b></color>\n" +
             "  • <b>Aim Ray:</b> Point right controller beam at cube or UI buttons\n" +
             "  • <b>Grip / Grab:</b> Squeeze <b>Grip</b> (or <b>Trigger</b>) to pick up\n" +
+            "  • <b>Distance Scaling:</b> Push <b>Thumbstick</b> up/down to move cube along ray\n" +
             "  • <b>Move:</b> Move your hand to carry the cube with the ray in 3D\n" +
             "  • <b>Drop:</b> Release Grip over Container B (Green) or C (Red)\n\n" +
             "<color=#38bdf8><b>XR DEVICE SIMULATOR (Editor / Keyboard):</b></color>\n" +
             "  • <b>Right Hand Control:</b> Hold <color=#fbbf24><b>[SPACE]</b></color> or press <color=#fbbf24><b>[T]</b></color> to toggle\n" +
             "  • <b>Aim VR Ray:</b> Move mouse while holding Space / toggled\n" +
-            "  • <b>Grip / Grab:</b> Press <color=#fbbf24><b>[G]</b></color>, <color=#fbbf24><b>[E]</b></color>, or Left Click\n" +
-            "  • <b>Move Object:</b> Move mouse to sweep the ray and carry cube\n" +
-            "  • <b>Drop Object:</b> Press <color=#fbbf24><b>[G]</b></color> or Left Click again to drop";
+            "  • <b>Grip / Grab:</b> Hold <color=#fbbf24><b>[G]</b></color> or Left Click to carry\n" +
+            "  • <b>Distance Scaling:</b> Press <color=#fbbf24><b>[E]</b></color> to push forward, <color=#fbbf24><b>[Q]</b></color> to pull backward\n" +
+            "  • <b>Drop Object:</b> Release <color=#fbbf24><b>[G]</b></color> or Left Click to drop";
 
         // Back Button
         backFromControlsButton = CreateStyledButton(panelGo.transform, "Btn_Back", "←  BACK TO MENU", new Vector2(0f, -400f), new Vector2(300f, 44f), OnBackFromControlsClicked);

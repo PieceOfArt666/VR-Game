@@ -190,7 +190,7 @@ public class VRButtonHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
                     // Simulator & desktop fallbacks when aiming with the raycast
                     var kb = Keyboard.current;
                     var mouse = Mouse.current;
-                    if (kb != null && (kb.gKey.wasPressedThisFrame || kb.spaceKey.wasPressedThisFrame || kb.enterKey.wasPressedThisFrame))
+                    if (kb != null && kb.enterKey.wasPressedThisFrame)
                         triggerPressed = true;
                     if (mouse != null && mouse.leftButton.wasPressedThisFrame)
                         triggerPressed = true;

@@ -179,7 +179,7 @@ public class TutorialManager : MonoBehaviour
 
         if (kb != null)
         {
-            if (kb.enterKey.wasPressedThisFrame || kb.nKey.wasPressedThisFrame)
+            if (kb.nKey.wasPressedThisFrame)
             {
                 AdvanceStep();
                 return;
@@ -479,16 +479,16 @@ public class TutorialManager : MonoBehaviour
             case Step.GrabCube:
                 badge = "STEP 5 / 6";
                 badgeColor = new Color(0.98f, 0.45f, 0.09f);
-                title = "Grip Cube with Controller Raycast";
-                body = "• While aiming the <b>Controller Raycast</b> at the cube, hold down <color=#f97316><b>[G]</b></color> (or Left Click / VR Grip) to carry it!\n• Release [G] at any time to drop.";
-                feedback = "Hold [G] or Grip while raycast is aimed at cube to pick it up.";
+                title = "Grip Cube & Raycast Push/Pull";
+                body = "• Aim Controller Raycast at cube and hold <color=#f97316><b>[G]</b></color> (or Left Click / VR Grip) to carry!\n• While holding, press <color=#38bdf8><b>[E]</b></color> to push forward or <color=#38bdf8><b>[Q]</b></color> to pull backward (or use Controller Thumbstick)!\n• Release [G] at any time to drop.";
+                feedback = "Hold [G] to carry. Press [Q]/[E] or Controller Thumbstick to push/pull along ray.";
                 break;
 
             case Step.DropInContainerC:
                 badge = "STEP 6 / 6";
                 badgeColor = new Color(0.97f, 0.44f, 0.44f);
                 title = "Move with Controller Raycast (Error Test)";
-                body = "• Move the cube anywhere outside Container B (e.g. over Container C or table).\n• <color=#f87171><b>Release [G]</b></color> to drop! Since it is not Container B, it turns RED, shakes, and returns to spawn.";
+                body = "• Carry cube with [G] and adjust distance with <color=#38bdf8><b>[Q] / [E]</b></color>.\n• Drop it outside Container B (e.g. over Container C or table).\n• <color=#f87171><b>Release [G]</b></color> to drop! Since it is not Container B, it turns RED, shakes, and returns to spawn.";
                 feedback = "Release [G] outside Container B to observe Red error return to spawn.";
                 break;
 
@@ -496,7 +496,7 @@ public class TutorialManager : MonoBehaviour
                 badge = "FINAL TASK";
                 badgeColor = new Color(0.29f, 0.87f, 0.5f);
                 title = "Place with Controller Raycast in Container B";
-                body = "• Aim Controller Raycast at the cube, hold <color=#34d399><b>[G]</b></color> to carry it over <color=#4ade80><b>Green Container (B)</b></color>!\n• Release [G] inside Container B for magnetic snap & SUCCESS!";
+                body = "• Aim Controller Raycast at the cube, hold <color=#34d399><b>[G]</b></color> to carry it.\n• Adjust distance with <color=#38bdf8><b>[Q] / [E]</b></color> or Thumbstick over <color=#4ade80><b>Green Container (B)</b></color>!\n• Release [G] inside Container B for magnetic snap & SUCCESS!";
                 feedback = "Release [G] inside Container B (Green) for SUCCESS!";
                 break;
 
